@@ -6,3 +6,8 @@ class TaskAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(Task, TaskAdmin)
+
+class CommentAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Comment, CommentAdmin)
