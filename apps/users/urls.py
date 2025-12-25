@@ -5,5 +5,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('', UserViewSet, basename='user')
 
-urlpatterns = []
+urlpatterns = [
+    path('registration/', UserRegistrationView.as_view()),
+]
 urlpatterns += router.urls
