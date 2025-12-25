@@ -129,3 +129,10 @@ STATIC_URL = 'static/'
 REST_FRAMEWORK = { 'DEFAULT_AUTHENTICATION_CLASSES':
                     ( 'rest_framework_simplejwt.authentication.JWTAuthentication', ),
     }
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    # Token lifetimes
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),   # Short-lived access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),     # Refresh token validity
+}
