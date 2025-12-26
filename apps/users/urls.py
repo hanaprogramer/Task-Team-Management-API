@@ -7,5 +7,6 @@ router.register('', UserViewSet, basename='user')
 
 urlpatterns = [
     path('registration/', UserRegistrationView.as_view()),
+    path('login/', LoginView.as_view())
 ]
 urlpatterns += router.urls
