@@ -16,8 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active',
         ]
 
-
-
+#____________________________________________________________________________________________
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -62,3 +61,12 @@ class LoginSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+#________________________________________________________________________
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate_refresh(self, value):
+        if not value:
+            raise serializers.ValidationError("Refresh token is required for logout.")
+        return value
+#_________________________________________________________________________    
