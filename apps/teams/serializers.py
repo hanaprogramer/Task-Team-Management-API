@@ -12,9 +12,9 @@ class TeamSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model = Teams
-        fields = ['id', 'name', 'owner_detail',
+        fields = ['id', 'name','owner', 'owner_detail',
                   'members', 'members_detail', 'created_at']
-        read_only_fields = ['id', 'created_at','owner', 'owner_detail', 'members_detail']
+        read_only_fields = ['id', 'created_at', 'owner_detail', 'members_detail']
 
     def create(self, validated_data):
         """
