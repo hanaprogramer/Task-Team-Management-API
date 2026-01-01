@@ -1,42 +1,37 @@
-from .models import *
-from .serializers import *
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from django.db.models import Q
+
+from .models import Project
+from .serializers import ProjectsSerializer
 
 
 class ProjectsView(ModelViewSet):
     serializer_class = ProjectsSerializer
     permission_classes = [IsAuthenticated]
 
-
     def get_queryset(self):
         user = self.request.user
         return Project.objects.filter(
-            team__owner=user
-        ) | Project.objects.filter(
-            team__members=user
+            Q(team__owner=user) | Q(team__members=user)
         ).distinct()
 
     def perform_create(self, serializer):
-        team = serializer.validated_data['team']
-        user = self.request.user
-
-        if user != team.owner and not team.members.filter(id=user.id).exists():
-            raise PermissionDenied("Only team owner or team members can create projects")
-
-        serializer.save(created_by=user)
-
+        # تمام چک‌های دسترسی توی serializer انجام شده
+        serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        if serializer.instance.team.owner != self.request.user:
-            raise PermissionDenied("Only team owner can update project")
+        project = serializer.instance
+        user = self.request.user
+
+        if user != project.team.owner and user != project.created_by:
+            raise PermissionDenied("Only team owner or project creator can update project")
 
         serializer.save()
 
     def perform_destroy(self, instance):
-        if instance.team.owner != self.request.user:
+        user = self.request.user
+        if user != instance.team.owner:
             raise PermissionDenied("Only team owner can delete project")
-
         instance.delete()
-    
