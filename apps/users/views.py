@@ -1,6 +1,5 @@
 from .models import *
 from . serializers import *
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
@@ -11,9 +10,15 @@ from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 
 class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]  
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "admin":
+            return User.objects.all()
+        return User.objects.filter(id=user.id)
+
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -21,11 +26,12 @@ class UserRegistrationView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            return Response(RegisterSerializer(user).data, status=status.HTTP_201_CREATED)
+            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 #_______________________________________________________________________________________________
 class LoginView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -43,6 +49,7 @@ class LoginView(APIView):
         })
 #_____________________________________________________________________________
 class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = LogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
