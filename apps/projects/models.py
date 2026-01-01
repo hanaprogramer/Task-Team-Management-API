@@ -5,7 +5,7 @@ from apps.users.models import *
 class Project(models.Model):
     name = models.CharField(max_length=30)
     team = models.ForeignKey(Teams, on_delete=models.CASCADE, related_name='projects')
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     start_date = models.DateField(null=True, blank=True)    
     end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
