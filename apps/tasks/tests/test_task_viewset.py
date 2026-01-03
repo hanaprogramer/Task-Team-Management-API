@@ -98,7 +98,7 @@ class TasksViewSetTests(APITestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         # should contain task1 but not task2_other_team
-        ids = [item["title"] for item in res.data]
+        ids = [item["title"] for item in res.data["results"]]
         self.assertIn(self.task1.title, ids)
         self.assertNotIn(self.task2_other_team.title, ids)
 
@@ -107,7 +107,7 @@ class TasksViewSetTests(APITestCase):
         res = self.client.get(self.list_url)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        ids = [item["title"] for item in res.data]
+        ids = [item["title"] for item in res.data["results"]]
         self.assertIn(self.task1.title, ids)
         self.assertNotIn(self.task2_other_team.title, ids)
 
@@ -116,7 +116,7 @@ class TasksViewSetTests(APITestCase):
         res = self.client.get(self.list_url)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 0)
+        self.assertEqual(len(res.data["results"]), 0)
 
     # ==========================================================
     # RETRIEVE
