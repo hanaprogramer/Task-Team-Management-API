@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'apps.tasks',
     'rest_framework_simplejwt', 
     'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -130,6 +131,7 @@ STATIC_URL = 'static/'
 REST_FRAMEWORK = { 'DEFAULT_AUTHENTICATION_CLASSES':
                     ( 'rest_framework_simplejwt.authentication.JWTAuthentication', ),
                    'EXCEPTION_HANDLER': 'apps.users.utils.custom_exception_handler',
+                   'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     }
 
 from datetime import timedelta
@@ -137,4 +139,22 @@ SIMPLE_JWT = {
     # Token lifetimes
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),   # Short-lived access token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),     # Refresh token validity
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Task & Team Management API',
+    'DESCRIPTION': 'A simple Trello/Jira-like API with JWT auth, permissions, and tests.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SECURITY': [{'BearerAuth': []}],
+    'COMPONENT_SPLIT_REQUEST': True,
+    'COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    },
 }
