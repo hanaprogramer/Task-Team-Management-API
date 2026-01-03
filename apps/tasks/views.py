@@ -4,6 +4,10 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
+from apps.projects.models import *
+from apps.teams.models import *
+from django.shortcuts import get_object_or_404
+
 class TasksViewSet(ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
@@ -38,4 +42,41 @@ class TasksViewSet(ModelViewSet):
         if user != team.owner and not team.members.filter(id=user.id).exists():
             raise PermissionDenied("You do not have permission to delete this task")
 
+        instance.delete()
+#--------------------------comment------------------------------
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Comment.objects.filter(Q(author = user)|
+                                      Q(task__project__team__owner = user)|
+                                      Q(task__project__team__members = user)|
+                                      Q(task__assigned_to = user)).select_related('task','author').distinct()
+    
+    def perform_create(self, serializer):
+        task_id = self.kwargs.get("task_id")
+
+    # 1) Task must exist
+        task = get_object_or_404(Task, id=task_id)
+
+        user = self.request.user
+        team = task.project.team
+
+    # 2) User must have access to this task's team/project
+        if user != team.owner and not team.members.filter(id=user.id).exists() and user != task.assigned_to:
+            raise PermissionDenied("You do not have permission to comment on this task.")
+
+        serializer.save(author=user, task=task)
+
+
+    def perform_update(self, serializer):
+        if serializer.instance.author != self.request.user:
+            raise PermissionDenied("You can only update your own comments")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.author != self.request.user:
+            raise PermissionDenied("You can only delete your own comments")
         instance.delete()
