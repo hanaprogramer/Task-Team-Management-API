@@ -134,3 +134,16 @@ class TaskSerializer(serializers.ModelSerializer):
                 )
 
         return data
+#-------------------------------comment-------------------------------
+class CommentSerializer(serializers.ModelSerializer):
+    task = serializers.PrimaryKeyRelatedField(read_only=True)
+    task_detail = TaskSerializer(source = 'task', read_only=True)
+    author = serializers.PrimaryKeyRelatedField(read_only=True)
+    author_detail = UserSerializer(source = 'author', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'task', 'task_detail', 'author', 'author_detail', 'content', 'created_at']
+        read_only_fields = ['id', 'task', 'author', 'created_at']
+    
+        
