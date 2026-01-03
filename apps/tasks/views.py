@@ -8,15 +8,36 @@ from apps.projects.models import *
 from apps.teams.models import *
 from django.shortcuts import get_object_or_404
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+
 class TasksViewSet(ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
+    from django.db.models import Q
+
     def get_queryset(self):
         user = self.request.user
-        return Task.objects.filter(
+
+    # 1) queryset اصلی: فقط تسک‌هایی که کاربر اجازه دیدن دارد
+        qs = Task.objects.filter(
             Q(project__team__owner=user) | Q(project__team__members=user)
         ).distinct()
+
+    # 2) فیلتر status
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            qs = qs.filter(status=status_param)
+
+    # 3) فیلتر assigned_to=me
+        assigned_to_param = self.request.query_params.get('assigned_to')
+        if assigned_to_param == "me":
+            qs = qs.filter(assigned_to=user)
+
+        return qs
 
 
     def perform_create(self, serializer):
@@ -80,3 +101,5 @@ class CommentViewSet(ModelViewSet):
         if instance.author != self.request.user:
             raise PermissionDenied("You can only delete your own comments")
         instance.delete()
+
+#------------------------filtering---------------------------------
