@@ -129,9 +129,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 REST_FRAMEWORK = { 'DEFAULT_AUTHENTICATION_CLASSES':
-                    ( 'rest_framework_simplejwt.authentication.JWTAuthentication', ),
-                   'EXCEPTION_HANDLER': 'apps.users.utils.custom_exception_handler',
-                   'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+                   ('rest_framework_simplejwt.authentication.JWTAuthentication', ),
+                    'EXCEPTION_HANDLER': 'apps.users.utils.custom_exception_handler',
+                    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+                    'DEFAULT_THROTTLE_RATES': {
+                                        'login': '5/min',
+                                        'register': '3/min',
+                                             }
     }
 
 from datetime import timedelta
