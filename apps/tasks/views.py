@@ -9,11 +9,13 @@ from apps.teams.models import *
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from .pagination import TaskPagination
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 class TasksViewSet(ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = TaskPagination
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
   
 

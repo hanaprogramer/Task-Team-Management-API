@@ -49,6 +49,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'status',
             'priority',
             'due_date',
+            'attachment'
         ]
 
     def validate(self, data):

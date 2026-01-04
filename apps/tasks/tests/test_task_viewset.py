@@ -8,7 +8,7 @@ from rest_framework import status
 from apps.teams.models import Teams
 from apps.projects.models import Project
 from apps.tasks.models import Task
-
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
 
@@ -260,3 +260,38 @@ class TasksViewSetTests(APITestCase):
         self.auth(self.outsider)
         res = self.client.delete(self.detail_url)
         self.assertIn(res.status_code, [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN])
+
+    # ==========================================================
+    # File Upload
+    # ==========================================================
+    def test_create_task_with_attachment_success(self):
+        self.client.force_authenticate(user=self.owner)
+
+        file = SimpleUploadedFile("test.txt", b"dummy content", content_type="text/plain")
+
+        payload = {
+        "title": "Task with file",
+        "description": "desc",
+        "project": self.project.id,
+        "status": "todo",
+        "priority": 2,
+        "attachment": file,
+    }
+
+        res = self.client.post(self.list_url, payload, format="multipart")
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertIn("attachment", res.data)
+        self.assertTrue(res.data["attachment"])
+
+    def test_update_task_attachment_success(self):
+        self.client.force_authenticate(user=self.owner)
+
+        file = SimpleUploadedFile("new.txt", b"new file", content_type="text/plain")
+
+        url = reverse("task-detail", args=[self.task1.id])
+        res = self.client.patch(url, {"attachment": file}, format="multipart")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data["attachment"])
+    

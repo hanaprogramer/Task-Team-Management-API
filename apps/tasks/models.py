@@ -26,6 +26,7 @@ class Task(models.Model):
 )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='todo')
     priority = models.PositiveIntegerField(choices=PRIORITY_CHOICES, default=2)
+    attachment = models.FileField(upload_to="task_attachments/", null=True, blank=True)
     due_date = models.DateField(null=True, blank=True) 
     created_at = models.DateTimeField(auto_now_add=True)
 
